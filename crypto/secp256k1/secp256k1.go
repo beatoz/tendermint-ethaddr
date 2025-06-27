@@ -9,8 +9,6 @@ import (
 	"math/big"
 
 	secp256k1 "github.com/btcsuite/btcd/btcec"
-	"golang.org/x/crypto/ripemd160" //nolint: staticcheck // necessary for Bitcoin address format
-
 	"github.com/tendermint/tendermint/crypto"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 )
@@ -159,17 +157,7 @@ type PubKey []byte
 
 // Address returns a Bitcoin style addresses: RIPEMD160(SHA256(pubkey))
 func (pubKey PubKey) Address() crypto.Address {
-	if len(pubKey) != PubKeySize {
-		panic("length of pubkey is incorrect")
-	}
-	hasherSHA256 := sha256.New()
-	_, _ = hasherSHA256.Write(pubKey) // does not error
-	sha := hasherSHA256.Sum(nil)
-
-	hasherRIPEMD160 := ripemd160.New()
-	_, _ = hasherRIPEMD160.Write(sha) // does not error
-
-	return crypto.Address(hasherRIPEMD160.Sum(nil))
+	return ethAddress(pubKey)
 }
 
 // Bytes returns the pubkey marshaled with amino encoding.
